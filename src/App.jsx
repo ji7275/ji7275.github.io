@@ -1,3 +1,171 @@
+import React from "react";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+
+import Header from "./components/Header.jsx";
+import Footer from "./components/Footer.jsx";
+
+import Home from "./pages/Home.jsx";
+import About from "./pages/About.jsx";
+import News from "./pages/News.jsx";
+import Packages from "./pages/Packages.jsx";
+
+import Goa from "./pages/Goa.jsx";
+import Kashmir from "./pages/Kashmir.jsx";
+import Rajasthan from "./pages/Rajasthan.jsx";
+import Kerala from "./pages/Kerala.jsx";
+import Himachal from "./pages/Himachal.jsx";
+
+import Dubai from "./pages/Dubai.jsx";
+import Bali from "./pages/Bali.jsx";
+import Thailand from "./pages/Thailand.jsx";
+import Switzerland from "./pages/Switzerland.jsx";
+import Europe from "./pages/Europe.jsx";
+
+import Honeymoon from "./pages/Honeymoon.jsx";
+import Family from "./pages/Family.jsx";
+import Adventure from "./pages/Adventure.jsx";
+import Weekend from "./pages/Weekend.jsx";
+
+import Contact from "./pages/Contact.jsx";
+import ServiceDetails from "./pages/ServiceDetails.jsx";
+
+import "./App.css";
+
+function App() {
+  return (
+    <BrowserRouter>
+      {/* Header har page par show hoga */}
+      <Header />
+
+      <main>
+        <Routes>
+          {/* Main Pages */}
+          <Route path="/" element={<Home />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/news" element={<News />} />
+          <Route path="/packages" element={<Packages />} />
+
+          {/* India Destinations */}
+          <Route path="/goa" element={<Goa />} />
+          <Route path="/kashmir" element={<Kashmir />} />
+          <Route path="/rajasthan" element={<Rajasthan />} />
+          <Route path="/kerala" element={<Kerala />} />
+          <Route path="/himachal" element={<Himachal />} />
+
+          {/* International Destinations */}
+          <Route path="/dubai" element={<Dubai />} />
+          <Route path="/bali" element={<Bali />} />
+          <Route path="/thailand" element={<Thailand />} />
+          <Route path="/switzerland" element={<Switzerland />} />
+          <Route path="/europe" element={<Europe />} />
+
+          {/* Holiday Experiences */}
+          <Route path="/honeymoon" element={<Honeymoon />} />
+          <Route path="/Family" element={<Family />} />
+          <Route path="/Adventure" element={<Adventure />} />
+          <Route path="/Weekend" element={<Weekend />} />
+
+          {/* Services */}
+          <Route path="/services/:serviceName" element={<ServiceDetails />} />
+
+          {/* Contact */}
+          <Route path="/contact" element={<Contact />} />
+
+          {/* Page Not Found */}
+          <Route
+            path="*"
+            element={
+              <div style={{ textAlign: "center", padding: "80px 20px" }}>
+                <h1>404 - Page Not Found</h1>
+                <p>Sorry, this page does not exist.</p>
+              </div>
+            }
+          />
+        </Routes>
+      </main>
+
+      {/* Footer har page par show hoga */}
+      <Footer />
+    </BrowserRouter>
+  );
+}
+
+export default App;
+
+// import React from "react";
+// import { BrowserRouter, Routes, Route } from "react-router-dom";
+
+// import Header from "./components/Header.jsx";
+// import Footer from "./components/Footer.jsx";
+
+// import Home from "./pages/Home.jsx";
+// import About from "./pages/About.jsx";
+// import News from "./pages/News.jsx";
+// import Packages from "./pages/Packages.jsx";
+
+// import Goa from "./pages/Goa.jsx";
+// import Kashmir from "./pages/Kashmir.jsx";
+// import Rajasthan from "./pages/Rajasthan.jsx";
+// import Kerala from "./pages/Kerala.jsx";
+// import Himachal from "./pages/Himachal.jsx";
+
+// import Dubai from "./pages/Dubai.jsx";
+// import Bali from "./pages/Bali.jsx";
+// import Thailand from "./pages/Thailand.jsx";
+// import Switzerland from "./pages/Switzerland.jsx";
+// import Europe from "./pages/Europe.jsx";
+
+// import Honeymoon from "./pages/Honeymoon.jsx";
+// import Family from "./pages/Family.jsx";
+// import Adventure from "./pages/Adventure.jsx";
+// import Weekend from "./pages/Weekend.jsx";
+
+// import Contact from "./pages/Contact.jsx";
+// import ServiceDetails from "./pages/ServiceDetails.jsx";
+
+// import "./App.css";
+
+// function App() {
+//   return (
+//     <BrowserRouter basename={import.meta.env.BASE_URL}>
+//       <Header />
+
+//       <main>
+//         <Routes>
+//           <Route path="/" element={<Home />} />
+//           <Route path="/about" element={<About />} />
+//           <Route path="/news" element={<News />} />
+//           <Route path="/packages" element={<Packages />} />
+
+//           <Route path="/goa" element={<Goa />} />
+//           <Route path="/kashmir" element={<Kashmir />} />
+//           <Route path="/rajasthan" element={<Rajasthan />} />
+//           <Route path="/kerala" element={<Kerala />} />
+//           <Route path="/himachal" element={<Himachal />} />
+
+//           <Route path="/dubai" element={<Dubai />} />
+//           <Route path="/bali" element={<Bali />} />
+//           <Route path="/thailand" element={<Thailand />} />
+//           <Route path="/switzerland" element={<Switzerland />} />
+//           <Route path="/europe" element={<Europe />} />
+
+//           <Route path="/honeymoon" element={<Honeymoon />} />
+//           <Route path="/Family" element={<Family />} />
+//           <Route path="/Adventure" element={<Adventure />} />
+//           <Route path="/Weekend" element={<Weekend />} />
+
+//           <Route path="/services/:serviceName" element={<ServiceDetails />} />
+//           <Route path="/contact" element={<Contact />} />
+//         </Routes>
+//       </main>
+
+//       <Footer />
+//     </BrowserRouter>
+//   );
+// }
+
+// export default App;
+
 // import React from "react";
 // import { BrowserRouter, Routes, Route } from "react-router-dom";
 
@@ -67,72 +235,3 @@
 // }
 
 // export default App;
-
-import React from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-
-import Header from "./components/Header.jsx";
-import Home from "./pages/Home.jsx";
-import About from "./pages/About.jsx";
-import News from "./pages/News.jsx";
-import Packages from "./pages/Packages.jsx";
-import Goa from "./pages/Goa.jsx";
-import Kashmir from "./pages/Kashmir.jsx";
-import Contact from "./pages/Contact.jsx";
-import Rajasthan from "./pages/Rajasthan.jsx";
-import Kerala from "./pages/Kerala.jsx";
-import Himachal from "./pages/Himachal.jsx";
-import Dubai from "./pages/Dubai.jsx";
-import Bali from "./pages/Bali.jsx";
-import Europe from "./pages/Europe.jsx";
-import Switzerland from "./pages/Switzerland.jsx";
-import Thailand from "./pages/Thailand.jsx";
-import Honeymoon from "./pages/Honeymoon.jsx";
-import Family from "./pages/Family.jsx";
-import Adventure from "./pages/Adventure.jsx";
-import Weekend from "./pages/Weekend.jsx";
-import ServiceDetails from "./pages/ServiceDetails.jsx";
-
-import Footer from "./components/Footer.jsx";
-
-import "./App.css";
-
-function App() {
-  return (
-    <BrowserRouter basename={import.meta.env.BASE_URL}>
-      <Header />
-
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/about" element={<About />} />
-        <Route path="/news" element={<News />} />
-        <Route path="/packages" element={<Packages />} />
-
-        <Route path="/goa" element={<Goa />} />
-        <Route path="/kashmir" element={<Kashmir />} />
-        <Route path="/rajasthan" element={<Rajasthan />} />
-        <Route path="/kerala" element={<Kerala />} />
-        <Route path="/himachal" element={<Himachal />} />
-
-        <Route path="/dubai" element={<Dubai />} />
-        <Route path="/bali" element={<Bali />} />
-        <Route path="/thailand" element={<Thailand />} />
-        <Route path="/switzerland" element={<Switzerland />} />
-        <Route path="/europe" element={<Europe />} />
-
-        <Route path="/honeymoon" element={<Honeymoon />} />
-        <Route path="/Family" element={<Family />} />
-        <Route path="/Adventure" element={<Adventure />} />
-        <Route path="/Weekend" element={<Weekend />} />
-
-        <Route path="/services/:serviceName" element={<ServiceDetails />} />
-
-        <Route path="/contact" element={<Contact />} />
-      </Routes>
-
-      <Footer />
-    </BrowserRouter>
-  );
-}
-
-export default App;

@@ -889,3 +889,409 @@
     font-size: 11px;
   }
 }
+
+* {
+  box-sizing: border-box;
+}
+
+.travel-header-container {
+  width: 100%;
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 0 35px;
+}
+
+/* TOP BAR */
+.travel-topbar {
+  background: #092c4c;
+  color: #fff;
+  font-size: 12px;
+  padding: 10px 0;
+}
+
+.topbar-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.topbar-left,
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.topbar-right a {
+  color: #fff;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.topbar-right a:hover {
+  color: #f5a623;
+}
+
+.topbar-separator {
+  color: #f5a623;
+}
+
+/* MAIN HEADER */
+.travel-header {
+  width: 100%;
+  background: #fff;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.08);
+}
+
+.navbar {
+  min-height: 88px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 25px;
+}
+
+.travel-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+  text-decoration: none;
+}
+
+.travel-brand-logo {
+  width: 65px;
+  height: 65px;
+  object-fit: contain;
+}
+
+.travel-brand-name h2 {
+  color: #092c4c;
+  font-size: 25px;
+  margin: 0;
+  font-weight: 800;
+}
+
+.travel-brand-name h2 span {
+  color: #f5a623;
+}
+
+.travel-brand-name p {
+  color: #687b8d;
+  font-size: 10px;
+  letter-spacing: 2px;
+  margin: 4px 0 0;
+}
+
+/* NAVIGATION */
+.travel-navigation {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 19px;
+  flex: 1;
+}
+
+.navigation-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  border: none;
+  background: transparent;
+  color: #102f4c;
+  text-decoration: none;
+  font-size: 12px;
+  font-weight: 700;
+  font-family: inherit;
+  white-space: nowrap;
+  cursor: pointer;
+  padding: 12px 0;
+  transition: color 0.2s ease;
+}
+
+.navigation-link:hover,
+.nav-dropdown.dropdown-open > .navigation-link {
+  color: #e89a16;
+}
+
+.dropdown-trigger {
+  appearance: none;
+}
+
+/* DROPDOWN ARROW */
+.nav-chevron {
+  width: 7px;
+  height: 7px;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  transform: rotate(45deg);
+  margin-top: -4px;
+  transition: transform 0.2s ease;
+}
+
+.dropdown-open .nav-chevron {
+  transform: rotate(225deg);
+  margin-top: 4px;
+}
+
+/* DROPDOWN CONTAINER */
+.nav-dropdown {
+  position: relative;
+}
+
+.travel-dropdown {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.16);
+  z-index: 2000;
+  border-top: 3px solid #f5a623;
+}
+
+.nav-dropdown.dropdown-open > .travel-dropdown {
+  display: block;
+}
+
+/* DESKTOP HOVER SUPPORT */
+@media (min-width: 1101px) {
+  .nav-dropdown:hover > .travel-dropdown {
+    display: block;
+  }
+}
+
+/* MEGA DROPDOWN */
+.mega-dropdown {
+  width: 650px;
+  padding: 24px;
+}
+
+.mega-dropdown-heading {
+  padding-bottom: 15px;
+  border-bottom: 1px solid #e9edf1;
+  margin-bottom: 18px;
+}
+
+.mega-dropdown-heading span {
+  color: #e89a16;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 2px;
+}
+
+.mega-dropdown-heading h3 {
+  color: #092c4c;
+  font-size: 20px;
+  margin: 7px 0 0;
+}
+
+.mega-dropdown-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 25px;
+}
+
+.mega-dropdown-column h4 {
+  color: #092c4c;
+  font-size: 14px;
+  margin: 0 0 12px;
+}
+
+.mega-dropdown-column a,
+.simple-dropdown a {
+  display: block;
+  color: #566778;
+  font-size: 13px;
+  text-decoration: none;
+  padding: 9px 0;
+  transition: all 0.2s ease;
+}
+
+.mega-dropdown-column a:hover,
+.simple-dropdown a:hover {
+  color: #e89a16;
+  padding-left: 5px;
+}
+
+/* SERVICES DROPDOWN */
+.simple-dropdown {
+  min-width: 210px;
+  padding: 12px 18px;
+}
+
+/* ACTION BUTTONS */
+.navigation-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.admin-login-button,
+.plan-trip-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 12px 15px;
+  border-radius: 5px;
+  text-decoration: none;
+  font-size: 11px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.admin-login-button {
+  color: #092c4c;
+  border: 1px solid #092c4c;
+}
+
+.admin-login-button:hover {
+  background: #092c4c;
+  color: #fff;
+}
+
+.plan-trip-button {
+  color: #fff;
+  background: #f5a623;
+}
+
+.plan-trip-button:hover {
+  background: #df8d0c;
+}
+
+/* MOBILE BUTTON */
+.mobile-menu-button {
+  display: none;
+  background: #092c4c;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  font-size: 23px;
+  width: 43px;
+  height: 40px;
+  cursor: pointer;
+}
+
+/* TABLET AND MOBILE */
+@media (max-width: 1100px) {
+  .travel-header-container {
+    padding: 0 20px;
+  }
+
+  .navbar {
+    min-height: 78px;
+  }
+
+  .mobile-menu-button {
+    display: block;
+    flex-shrink: 0;
+  }
+
+  .travel-navigation {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    max-height: calc(100vh - 100px);
+    overflow-y: auto;
+    background: #fff;
+    padding: 15px 22px 25px;
+    align-items: stretch;
+    flex-direction: column;
+    gap: 3px;
+    box-shadow: 0 12px 20px rgba(0, 0, 0, 0.12);
+  }
+
+  .travel-navigation.show-navigation {
+    display: flex;
+  }
+
+  .navigation-link {
+    width: 100%;
+    justify-content: space-between;
+    padding: 13px 5px;
+    border-bottom: 1px solid #edf0f3;
+  }
+
+  .nav-dropdown {
+    width: 100%;
+  }
+
+  .travel-dropdown {
+    position: static;
+    width: 100%;
+    box-shadow: none;
+    border-radius: 0;
+    border-top: none;
+    background: #f7f9fb;
+    margin-bottom: 8px;
+  }
+
+  .nav-dropdown.dropdown-open > .travel-dropdown {
+    display: block;
+  }
+
+  .mega-dropdown {
+    padding: 15px;
+  }
+
+  .mega-dropdown-grid {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+
+  .mega-dropdown-heading h3 {
+    font-size: 17px;
+  }
+
+  .simple-dropdown {
+    padding: 8px 18px;
+  }
+
+  .navigation-actions {
+    flex-direction: column;
+    align-items: stretch;
+    margin-top: 12px;
+  }
+
+  .admin-login-button,
+  .plan-trip-button {
+    width: 100%;
+    padding: 14px;
+  }
+}
+
+/* SMALL MOBILE */
+@media (max-width: 600px) {
+  .travel-topbar {
+    display: none;
+  }
+
+  .travel-header-container {
+    padding: 0 14px;
+  }
+
+  .travel-brand-logo {
+    width: 52px;
+    height: 52px;
+  }
+
+  .travel-brand-name h2 {
+    font-size: 20px;
+  }
+
+  .travel-brand-name p {
+    font-size: 8px;
+  }
+
+  .navbar {
+    min-height: 70px;
+  }
+}

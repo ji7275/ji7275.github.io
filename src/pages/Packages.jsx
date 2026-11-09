@@ -145,8 +145,14 @@ function Packages() {
     <main className="packages-page">
       {/* PACKAGES HERO SECTION */}
       <section className="packages-hero">
-        <img
+        {/* <img
           src="/Images/Packeges.png"
+          alt="Travel High 99 Holiday Packages"
+          className="packages-hero-image"
+        /> */}
+
+        <img
+          src={`${import.meta.env.BASE_URL}Images/Packeges.png`}
           alt="Travel High 99 Holiday Packages"
           className="packages-hero-image"
         />
