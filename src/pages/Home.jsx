@@ -3,6 +3,7 @@ import "./Home.css";
 //import "./About.css";
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || "";
+
 const slides = [
   {
     id: 4,
@@ -789,6 +790,84 @@ function Home() {
   //   }
   // };
 
+  // const submitServiceEnquiry = async (event) => {
+  //   event.preventDefault();
+
+  //   const formElement = event.currentTarget;
+  //   const formData = new FormData(formElement);
+  //   const details = Object.fromEntries(formData.entries());
+
+  //   const travelDate =
+  //     details.travelDate ||
+  //     details.departureDate ||
+  //     details.checkIn ||
+  //     details.pickupDate ||
+  //     "";
+
+  //   const payload = {
+  //     name: details.name?.trim() || "",
+  //     email: details.email?.trim() || "",
+  //     phone: details.phone?.trim() || "",
+
+  //     destination:
+  //       details.destination || details.to || details.dropLocation || null,
+
+  //     travelDate: travelDate ? travelDate : null,
+
+  //     travellers:
+  //       details.travellers ||
+  //       details.guests ||
+  //       details.passengers ||
+  //       details.applicants ||
+  //       null,
+
+  //     service: activeService.title,
+
+  //     message: Object.entries(details)
+  //       .filter(([key]) => !["name", "email", "phone"].includes(key))
+  //       .map(([key, value]) => `${key}: ${value}`)
+  //       .join(" | "),
+  //   };
+
+  //   try {
+  //     setSubmitting(true);
+  //     setFormMessage("");
+
+  //     const response = await fetch(
+  //       `${API_BASE.replace(/\/$/, "")}/api/enquiries`,
+  //       {
+  //         method: "POST",
+  //         headers: {
+  //           "Content-Type": "application/json",
+  //         },
+  //         body: JSON.stringify(payload),
+  //       },
+  //     );
+
+  //     const result = await response.json();
+
+  //     console.log("API Response:", result);
+
+  //     if (!response.ok || result.success === false) {
+  //       throw new Error(result.message || "Enquiry submission failed.");
+  //     }
+
+  //     setFormMessage(
+  //       `Enquiry submitted successfully! Your Enquiry ID is ${result.enquiryId}`,
+  //     );
+
+  //     formElement.reset();
+  //   } catch (error) {
+  //     console.error("Enquiry Error:", error);
+
+  //     setFormMessage(
+  //       error.message || "Something went wrong. Please try again.",
+  //     );
+  //   } finally {
+  //     setSubmitting(false);
+  //   }
+  // };
+
   const submitServiceEnquiry = async (event) => {
     event.preventDefault();
 
@@ -807,24 +886,28 @@ function Home() {
       name: details.name?.trim() || "",
       email: details.email?.trim() || "",
       phone: details.phone?.trim() || "",
-
       destination:
         details.destination || details.to || details.dropLocation || null,
-
-      travelDate: travelDate ? travelDate : null,
-
+      travelDate: travelDate || null,
       travellers:
         details.travellers ||
         details.guests ||
         details.passengers ||
         details.applicants ||
         null,
-
       service: activeService.title,
-
-      message: Object.entries(details)
-        .filter(([key]) => !["name", "email", "phone"].includes(key))
-        .map(([key, value]) => `${key}: ${value}`)
+      message: [
+        details.additionalRequirements || "",
+        ...Object.entries(details)
+          .filter(
+            ([key]) =>
+              !["name", "email", "phone", "additionalRequirements"].includes(
+                key,
+              ),
+          )
+          .map(([key, value]) => `${key}: ${value}`),
+      ]
+        .filter(Boolean)
         .join(" | "),
     };
 
@@ -832,20 +915,35 @@ function Home() {
       setSubmitting(true);
       setFormMessage("");
 
-      const response = await fetch(
-        `${API_BASE.replace(/\/$/, "")}/api/enquiries`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(payload),
+      // Swagger wala exact API URL
+      const apiUrl = "http://localhost:7154/api/Enquiries";
+
+      console.log("API URL:", apiUrl);
+      console.log("Sending Payload:", payload);
+
+      const response = await fetch(apiUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
         },
-      );
+        body: JSON.stringify(payload),
+      });
 
-      const result = await response.json();
+      const responseText = await response.text();
 
-      console.log("API Response:", result);
+      console.log("Response Status:", response.status);
+      console.log("Response Text:", responseText);
+
+      let result;
+
+      try {
+        result = JSON.parse(responseText);
+      } catch {
+        throw new Error(
+          "API returned HTML instead of JSON. Check API URL and backend.",
+        );
+      }
 
       if (!response.ok || result.success === false) {
         throw new Error(result.message || "Enquiry submission failed.");
@@ -858,10 +956,7 @@ function Home() {
       formElement.reset();
     } catch (error) {
       console.error("Enquiry Error:", error);
-
-      setFormMessage(
-        error.message || "Something went wrong. Please try again.",
-      );
+      setFormMessage(error.message);
     } finally {
       setSubmitting(false);
     }
