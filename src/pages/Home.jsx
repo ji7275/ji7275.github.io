@@ -12,7 +12,7 @@ const slides = [
     title: "Explore the World",
     subtitle: "Make Every Journey Special.",
     description:
-      "Explore amazing destinations with Travel99 and enjoy a memorable travel experience.",
+      "Explore amazing destinations with Travel High 99 and enjoy a memorable travel experience.",
   },
   {
     id: 2,
