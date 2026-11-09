@@ -990,7 +990,7 @@ function Home() {
           </div>
         </div>
 
-        <div className="hero-side-label">TRAVEL99 · EXPLORE MORE</div>
+        <div className="hero-side-label">TRAVEL HIGH 99 · EXPLORE MORE</div>
 
         <div className="slider-controls">
           <button
