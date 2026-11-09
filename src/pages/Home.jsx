@@ -1330,7 +1330,7 @@ function Home() {
           <div className="about-stamp">
             <strong>99</strong>
             <span>
-              TRAVEL
+              TRAVEL HIGH
               <br />
               YOUR WAY
             </span>
