@@ -1,11 +1,11 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 
-const API_URL = "https://localhost:7154/api/home";
+// Swagger mein jo Request URL aapne share kiya hai, uske according:
+const API_URL = "http://localhost:7154/api/Home";
 
-// Public image URLs and local public-folder paths both supported.
 const getImageUrl = (url) => {
-  if (!url) return "";
+  if (!url) return "/Images/no-image.png";
 
   if (/^https?:\/\//i.test(url)) return url;
 
@@ -21,31 +21,44 @@ function Home() {
   const [formValues, setFormValues] = useState({});
 
   useEffect(() => {
+    let isMounted = true;
+
     const fetchHome = async () => {
       try {
         setLoading(true);
+        setError("");
 
-        const response = await fetch(API_URL);
+        const response = await fetch(API_URL, {
+          method: "GET",
+          headers: { Accept: "application/json" },
+        });
 
         if (!response.ok) {
-          throw new Error(`API error: ${response.status}`);
+          const message = await response.text();
+          throw new Error(`API Error ${response.status}: ${message}`);
         }
 
         const result = await response.json();
 
         if (!result.success) {
-          throw new Error(result.message || "Unable to load homepage");
+          throw new Error(result.message || "Homepage data load nahi hua.");
         }
 
-        setHome(result.data);
+        if (isMounted) {
+          setHome(result.data);
+        }
       } catch (err) {
-        setError(err.message);
+        if (isMounted) setError(err.message);
       } finally {
-        setLoading(false);
+        if (isMounted) setLoading(false);
       }
     };
 
     fetchHome();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   const slides = home?.slides || [];
@@ -60,73 +73,88 @@ function Home() {
     return () => clearInterval(timer);
   }, [slides.length]);
 
+  useEffect(() => {
+    if (slideIndex >= slides.length) setSlideIndex(0);
+  }, [slides.length, slideIndex]);
+
   const content = useMemo(() => {
     const result = {};
 
     (home?.homeContent || []).forEach((item) => {
-      result[item.SectionName] ||= {};
-      result[item.SectionName][item.ContentKey] = item.ContentValue;
+      const section = item.SectionName;
+      const key = item.ContentKey;
+
+      if (!result[section]) result[section] = {};
+      result[section][key] = item.ContentValue;
     });
 
     return result;
   }, [home]);
 
   const services = home?.services || [];
-  const visaServices = services.filter((s) => s.ServiceType === "Visa");
-  const travelServices = services.filter((s) => s.ServiceType === "Travel");
+
+  const visaServices = services.filter(
+    (item) => item.ServiceType?.toLowerCase() === "visa",
+  );
+
+  const travelServices = services.filter(
+    (item) => item.ServiceType?.toLowerCase() === "travel",
+  );
 
   const getServiceForm = (serviceId) => {
-    const form = (home?.serviceForms || []).find(
-      (f) => f.ServiceId === serviceId,
+    const serviceForm = (home?.serviceForms || []).find(
+      (item) => Number(item.ServiceId) === Number(serviceId),
     );
 
-    if (!form) return null;
+    if (!serviceForm) return null;
 
     return {
-      ...form,
-      fields: (home?.serviceFormFields || []).filter(
-        (field) => field.ServiceFormId === form.ServiceFormId,
-      ),
+      ...serviceForm,
+      fields: (home?.serviceFormFields || [])
+        .filter(
+          (field) =>
+            Number(field.ServiceFormId) === Number(serviceForm.ServiceFormId),
+        )
+        .sort(
+          (a, b) => Number(a.DisplayOrder || 0) - Number(b.DisplayOrder || 0),
+        ),
     };
-  };
-
-  const updateField = (fieldName, value) => {
-    setFormValues((previous) => ({
-      ...previous,
-      [fieldName]: value,
-    }));
   };
 
   const openService = (service) => {
     setSelectedService(service);
     setFormValues({});
-    document.getElementById("service-enquiry")?.scrollIntoView({
-      behavior: "smooth",
-    });
+
+    setTimeout(() => {
+      document.getElementById("service-enquiry")?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    }, 100);
   };
 
   const selectedForm = selectedService
     ? getServiceForm(selectedService.ServiceId)
     : null;
 
-  const submitServiceForm = (event) => {
-    event.preventDefault();
-
-    // Form definitions are dynamic. The submission API will be connected
-    // after the enquiry table/API schema is confirmed.
-    alert("Form ready. Next step: connect this service enquiry to SQL API.");
+  const updateField = (name, value) => {
+    setFormValues((previous) => ({
+      ...previous,
+      [name]: value,
+    }));
   };
 
   const renderDynamicField = (field) => {
-    const common = {
+    const type = (field.FieldType || "text").toLowerCase();
+    const commonProps = {
       name: field.FieldName,
       required: Boolean(field.IsRequired),
       value: formValues[field.FieldName] || "",
-      onChange: (e) => updateField(field.FieldName, e.target.value),
-      placeholder: field.Placeholder || field.FieldLabel,
+      placeholder: field.Placeholder || `Enter ${field.FieldLabel || ""}`,
+      onChange: (event) => updateField(field.FieldName, event.target.value),
     };
 
-    if (field.FieldType === "select") {
+    if (type === "select") {
       let options = [];
 
       try {
@@ -136,10 +164,10 @@ function Home() {
       }
 
       return (
-        <select {...common} key={field.FieldId}>
+        <select {...commonProps} key={field.FieldId}>
           <option value="">Select {field.FieldLabel}</option>
-          {options.map((option) => (
-            <option key={option} value={option}>
+          {options.map((option, index) => (
+            <option key={`${field.FieldId}-${index}`} value={option}>
               {option}
             </option>
           ))}
@@ -147,34 +175,52 @@ function Home() {
       );
     }
 
+    const allowedTypes = ["text", "date", "time", "email", "number", "tel"];
+
     return (
       <input
-        {...common}
+        {...commonProps}
         key={field.FieldId}
-        type={
-          ["text", "date", "time", "email", "number", "tel"].includes(
-            field.FieldType,
-          )
-            ? field.FieldType
-            : "text"
-        }
+        type={allowedTypes.includes(type) ? type : "text"}
       />
     );
   };
 
+  const submitServiceForm = (event) => {
+    event.preventDefault();
+
+    if (!selectedService || !selectedForm) {
+      alert("Please select a service first.");
+      return;
+    }
+
+    // Abhi form database se dynamically render ho raha hai.
+    // Save karne ke liye POST enquiry API connect karni hogi.
+    console.log("Service:", selectedService.Title);
+    console.log("Form Data:", formValues);
+
+    alert(
+      "Form details ready hain. Enquiry save karne ke liye POST API connect karni hogi.",
+    );
+  };
+
   if (loading) {
-    return <div className="home-loading">Loading Travel High 99...</div>;
+    return (
+      <div className="home-loading">
+        <div className="home-spinner" />
+        <h3>Loading Travel High 99...</h3>
+        <p>Please wait while we load your travel experience.</p>
+      </div>
+    );
   }
 
   if (error) {
     return (
       <div className="home-error">
-        <h2>Homepage data could not be loaded</h2>
+        <h2>Unable to load homepage data</h2>
         <p>{error}</p>
-        <p>
-          Check whether your API is running and the database connection is
-          correct.
-        </p>
+        <p>Check API running status, database connection and CORS settings.</p>
+        <button onClick={() => window.location.reload()}>Try Again</button>
       </div>
     );
   }
@@ -185,7 +231,7 @@ function Home() {
   const contact = home.contact?.[0];
 
   return (
-    <div className="travel-home">
+    <main className="travel-home">
       {/* HERO SLIDER */}
       <section className="db-hero">
         {slides.length > 0 ? (
@@ -203,15 +249,19 @@ function Home() {
                   <h1>{slide.Title}</h1>
                   <h2>{slide.Subtitle}</h2>
                   <p>{slide.Description}</p>
-                  <a href="#services" className="db-btn">
-                    Explore Our Services ↗
+
+                  <a href="#destinations" className="db-btn">
+                    Explore Destinations <span>↗</span>
                   </a>
                 </div>
               </div>
             </div>
           ))
         ) : (
-          <div className="db-hero-empty">Welcome to Travel High 99</div>
+          <div className="db-hero-empty">
+            <h1>Welcome to Travel High 99</h1>
+            <p>Your Travel & Visa Partner for Every Journey.</p>
+          </div>
         )}
 
         {slides.length > 1 && (
@@ -238,9 +288,9 @@ function Home() {
               {slides.map((slide, index) => (
                 <button
                   key={slide.SlideId}
-                  onClick={() => setSlideIndex(index)}
                   className={slideIndex === index ? "active" : ""}
-                  aria-label={`Slide ${index + 1}`}
+                  onClick={() => setSlideIndex(index)}
+                  aria-label={`Go to slide ${index + 1}`}
                 />
               ))}
             </div>
@@ -248,12 +298,12 @@ function Home() {
         )}
       </section>
 
-      {/* QUICK INFO */}
+      {/* QUICK INFORMATION */}
       <section className="db-quick">
         <div className="db-container db-quick-grid">
           {(home.quickInfo || []).map((item) => (
             <div className="db-quick-item" key={item.QuickInfoId}>
-              <span>{item.Icon}</span>
+              <span className="db-quick-icon">{item.Icon}</span>
               <div>
                 <h3>{item.Title}</h3>
                 <p>{item.Description}</p>
@@ -263,10 +313,15 @@ function Home() {
         </div>
       </section>
 
-      {/* INTRO CONTENT */}
+      {/* INTRO */}
       <section className="db-container db-intro">
-        <span className="db-label">{content.Intro?.Eyebrow}</span>
-        <h2>{content.Intro?.Heading}</h2>
+        <span className="db-label">
+          {content.Intro?.Eyebrow || "WELCOME TO TRAVEL HIGH 99"}
+        </span>
+        <h2>
+          {content.Intro?.Heading ||
+            "Your Travel & Visa Partner for Every Journey."}
+        </h2>
         <p>{content.Intro?.Description}</p>
       </section>
 
@@ -277,11 +332,15 @@ function Home() {
             <img
               src={getImageUrl(about.ImageUrl)}
               alt={about.Heading || "About Travel High 99"}
+              loading="lazy"
             />
-            <div className="db-about-stamp">
-              <strong>{about.StampText}</strong>
-              <span>{about.Caption}</span>
-            </div>
+
+            {about.StampText && (
+              <div className="db-about-stamp">
+                <strong>{about.StampText}</strong>
+                <span>{about.Caption}</span>
+              </div>
+            )}
           </div>
 
           <div className="db-about-text">
@@ -293,7 +352,7 @@ function Home() {
             <div className="db-about-points">
               {(home.aboutPoints || []).map((point) => (
                 <div key={point.AboutPointId}>
-                  <span>✓</span>
+                  <span className="db-check">✓</span>
                   <div>
                     <strong>{point.Title}</strong>
                     <p>{point.Description}</p>
@@ -321,6 +380,7 @@ function Home() {
           <div className="db-service-grid">
             {visaServices.map((service) => (
               <button
+                type="button"
                 className="db-service-card"
                 key={service.ServiceId}
                 onClick={() => openService(service)}
@@ -349,6 +409,7 @@ function Home() {
           <div className="db-service-grid">
             {travelServices.map((service) => (
               <button
+                type="button"
                 className="db-service-card"
                 key={service.ServiceId}
                 onClick={() => openService(service)}
@@ -363,48 +424,54 @@ function Home() {
         </div>
       </section>
 
-      {/* DYNAMIC SERVICE FORM */}
+      {/* DYNAMIC SERVICE ENQUIRY FORM */}
       <section className="db-section db-light" id="service-enquiry">
         <div className="db-container db-form-layout">
-          <div>
+          <div className="db-form-intro">
             <span className="db-label">PERSONALISED ASSISTANCE</span>
             <h2>{selectedForm?.Heading || "How Can We Help You?"}</h2>
-            <h3>{selectedForm?.Subtitle || "Choose a Travel Service"}</h3>
+            <h3>{selectedForm?.Subtitle || "Plan Your Next Journey"}</h3>
             <p>
               {selectedForm?.Description ||
-                "Select a service above to view its enquiry form."}
+                "Choose a travel or visa service above to view its enquiry form."}
             </p>
+
             {selectedService && (
-              <p className="db-selected-service">
-                Selected: <strong>{selectedService.Title}</strong>
-              </p>
+              <div className="db-selected-service">
+                Selected Service: <strong>{selectedService.Title}</strong>
+              </div>
             )}
           </div>
 
           <form className="db-form" onSubmit={submitServiceForm}>
-            <h3>{selectedForm?.Heading || "Travel Enquiry"}</h3>
+            <h3>{selectedForm?.Heading || "Travel Enquiry Form"}</h3>
 
             {selectedForm ? (
               <>
-                <div className="db-form-fields">
-                  {selectedForm.fields.map((field) => (
-                    <label key={field.FieldId}>
-                      <span>
-                        {field.FieldLabel}
-                        {field.IsRequired ? " *" : ""}
-                      </span>
-                      {renderDynamicField(field)}
-                    </label>
-                  ))}
-                </div>
+                {selectedForm.fields.length > 0 ? (
+                  <div className="db-form-fields">
+                    {selectedForm.fields.map((field) => (
+                      <label key={field.FieldId}>
+                        <span>
+                          {field.FieldLabel}
+                          {field.IsRequired ? " *" : ""}
+                        </span>
+                        {renderDynamicField(field)}
+                      </label>
+                    ))}
+                  </div>
+                ) : (
+                  <p>No form fields are available for this service.</p>
+                )}
+
                 <button className="db-btn" type="submit">
                   Submit Enquiry →
                 </button>
               </>
             ) : (
               <p className="db-form-hint">
-                Select Flight Booking, Hotel Booking, Holiday Packages or a visa
-                service to see its form.
+                Select Flight Booking, Hotel Booking, Holiday Packages or Visa
+                Assistance to load the form from the database.
               </p>
             )}
           </form>
@@ -432,7 +499,7 @@ function Home() {
                   alt={item.Name}
                   loading="lazy"
                 />
-                <div>
+                <div className="db-destination-overlay">
                   <span>{item.Country}</span>
                   <h3>{item.Name}</h3>
                   <p>{item.Description}</p>
@@ -444,7 +511,7 @@ function Home() {
         </div>
       </section>
 
-      {/* PACKAGES */}
+      {/* HOLIDAY PACKAGES */}
       <section className="db-section db-light" id="packages">
         <div className="db-container">
           <div className="db-heading">
@@ -455,7 +522,7 @@ function Home() {
 
           <div className="db-package-grid">
             {(home.packages || []).map((item) => (
-              <div className="db-package-card" key={item.PackageId}>
+              <article className="db-package-card" key={item.PackageId}>
                 <div className="db-package-image">
                   <img
                     src={getImageUrl(item.ImageUrl)}
@@ -464,27 +531,32 @@ function Home() {
                   />
                   <span>{item.Duration}</span>
                 </div>
+
                 <div className="db-package-body">
                   <small>📍 {item.Destination}</small>
                   <h3>{item.PackageName}</h3>
                   <p>{item.Description}</p>
+
                   <div className="db-package-footer">
                     <strong>{item.Price}</strong>
                     <Link to="/packages">View Details →</Link>
                   </div>
                 </div>
-              </div>
+              </article>
             ))}
           </div>
         </div>
       </section>
 
-      {/* BENEFITS */}
+      {/* WHY CHOOSE TRAVEL99 */}
       <section className="db-benefits">
         <div className="db-container">
           <div className="db-heading">
             <span className="db-label">WHY CHOOSE US</span>
-            <h2>{content.WhyTravel99?.Heading}</h2>
+            <h2>
+              {content.WhyTravel99?.Heading ||
+                "A better way to plan your journey."}
+            </h2>
             <p>{content.WhyTravel99?.Description}</p>
           </div>
 
@@ -519,7 +591,10 @@ function Home() {
                 />
                 <div>
                   <span>
-                    {item.Category} • {item.NewsDate?.split("T")[0]}
+                    {item.Category}{" "}
+                    {item.NewsDate
+                      ? `• ${String(item.NewsDate).split("T")[0]}`
+                      : ""}
                   </span>
                   <h3>{item.Title}</h3>
                   <p>{item.Description}</p>
@@ -531,11 +606,16 @@ function Home() {
         </div>
       </section>
 
-      {/* FINAL CTA */}
+      {/* FINAL CALL TO ACTION */}
       <section className="db-final-cta">
         <div className="db-container">
-          <span className="db-label">{content.FinalCTA?.Subtitle}</span>
-          <h2>{content.FinalCTA?.Heading}</h2>
+          <span className="db-label">
+            {content.FinalCTA?.Subtitle || "YOUR NEXT JOURNEY IS WAITING"}
+          </span>
+          <h2>
+            {content.FinalCTA?.Heading ||
+              "Let's make it happen with Travel High 99."}
+          </h2>
           <p>Talk to our team about your next travel plan.</p>
           <Link to="/contact" className="db-btn">
             Contact Us ↗
@@ -557,10 +637,37 @@ function Home() {
               <div className="db-contact-info">
                 <h3>{contact.CompanyName}</h3>
                 <p>📍 {contact.Address}</p>
-                <p>✉ {contact.Email}</p>
-                {contact.AlternateEmail && <p>✉ {contact.AlternateEmail}</p>}
-                <p>☎ {contact.Phone}</p>
-                {contact.AlternatePhone && <p>☎ {contact.AlternatePhone}</p>}
+
+                {contact.Email && (
+                  <p>
+                    ✉ <a href={`mailto:${contact.Email}`}>{contact.Email}</a>
+                  </p>
+                )}
+
+                {contact.AlternateEmail && (
+                  <p>
+                    ✉{" "}
+                    <a href={`mailto:${contact.AlternateEmail}`}>
+                      {contact.AlternateEmail}
+                    </a>
+                  </p>
+                )}
+
+                {contact.Phone && (
+                  <p>
+                    ☎ <a href={`tel:${contact.Phone}`}>{contact.Phone}</a>
+                  </p>
+                )}
+
+                {contact.AlternatePhone && (
+                  <p>
+                    ☎{" "}
+                    <a href={`tel:${contact.AlternatePhone}`}>
+                      {contact.AlternatePhone}
+                    </a>
+                  </p>
+                )}
+
                 <p>🕒 {contact.WorkingDays}</p>
                 <p>{contact.WorkingHours}</p>
               </div>
@@ -571,13 +678,14 @@ function Home() {
                   src={contact.MapUrl}
                   loading="lazy"
                   allowFullScreen
+                  referrerPolicy="no-referrer-when-downgrade"
                 />
               )}
             </div>
           </div>
         </section>
       )}
-    </div>
+    </main>
   );
 }
 
